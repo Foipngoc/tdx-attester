@@ -137,8 +137,9 @@ func UploadFile(url string, params map[string]string, nameField, fileName string
 	fmt.Println("获得key:", string(decryptedBytes))
 	//launch app
 	cmd := exec.Command("python3", "pytorchexample.py")
-	out, err := cmd.CombinedOutput()
-	fmt.Println("执行torch：", string(out), err)
+	cmd.Dir = "/root/examples/pytorch/"
+	out, _ := cmd.CombinedOutput()
+	fmt.Println("执行torch：", string(out))
 
 }
 func main() {
@@ -146,12 +147,12 @@ func main() {
 	params := make(map[string]string)
 	params["pubk"] = string(pubk)
 
-	file, err := os.Open("main.go")
+	file, err := os.Open("/opt/intel/tdx-quote-generation-sample/quote.dat")
 	if err != nil {
 		fmt.Println("打开文件时发生错误:", err)
 		return
 	}
 
-	UploadFile("http://localhost:9091/attest", params, "quote", "quote.dat", file)
+	UploadFile("http://192.168.122.1:9091/attest", params, "quote", "quote.dat", file)
 
 }
