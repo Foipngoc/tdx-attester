@@ -76,16 +76,17 @@ func attest(w http.ResponseWriter, r *http.Request) {
 		if publicKeyBlock == nil || publicKeyBlock.Type != "RSA PUBLIC KEY" {
 			panic("无法解码公钥")
 		}
-		publicKey, err := x509.ParsePKIXPublicKey(publicKeyBlock.Bytes)
+		publicKey, err := x509.ParsePKCS1PublicKey(publicKeyBlock.Bytes)
 		if err != nil {
 			panic(err)
 		}
-		rsaPublicKey, ok := publicKey.(*rsa.PublicKey)
+		/*rsaPublicKey, ok := publicKey.(*rsa.PublicKey)
 		if !ok {
 			panic("无法将公钥转换为RSA类型")
-		}
+		}*/
 
-		encryptedBytes, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, rsaPublicKey, []byte("key"), nil)
+		encryptedBytes, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, publicKey, []byte("5ac3b50421eeb26f55141a537cb322ff"), nil)
+		fmt.Printf("配置key.\n")
 
 		w.WriteHeader(http.StatusOK)
 
