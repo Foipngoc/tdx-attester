@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 func main() {
@@ -55,7 +56,16 @@ func attest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	flag:="Error"
+	if strings.Contains(string(out), flag) {
+	fmt.Printf("认证失败:\n%s\n", string(out))
+	w.WriteHeader(http.StatusBadRequest)
+	w.Write(out)
+
+	}else{
+	fmt.Printf("认证成功:\n%s\n", string(out))
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("key"))
+	}
 
 }
