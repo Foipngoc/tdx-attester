@@ -2,6 +2,11 @@
 package main
 
 import (
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/sha256"
+	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"io"
 	"log"
@@ -31,6 +36,8 @@ func attest(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 
+	pubk := r.FormValue("pubk")
+	log.Println(pubk)
 	// 创建目标文件
 	output, err := os.Create("quote.dat")
 	if err != nil {
@@ -56,16 +63,33 @@ func attest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	flag:="Error"
+	flag := "Error"
 	if strings.Contains(string(out), flag) {
-	fmt.Printf("认证失败:\n%s\n", string(out))
-	w.WriteHeader(http.StatusBadRequest)
-	w.Write(out)
+		fmt.Printf("认证失败:\n%s\n", string(out))
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(out)
 
-	}else{
-	fmt.Printf("认证成功:\n%s\n", string(out))
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("key"))
+	} else {
+		fmt.Printf("认证成功:\n%s\n", string(out))
+
+		publicKeyBlock, _ := pem.Decode([]byte(pubk))
+		if publicKeyBlock == nil || publicKeyBlock.Type != "RSA PUBLIC KEY" {
+			panic("无法解码公钥")
+		}
+		publicKey, err := x509.ParsePKIXPublicKey(publicKeyBlock.Bytes)
+		if err != nil {
+			panic(err)
+		}
+		rsaPublicKey, ok := publicKey.(*rsa.PublicKey)
+		if !ok {
+			panic("无法将公钥转换为RSA类型")
+		}
+
+		encryptedBytes, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, rsaPublicKey, []byte("key"), nil)
+
+		w.WriteHeader(http.StatusOK)
+
+		w.Write(encryptedBytes)
 	}
 
 }
