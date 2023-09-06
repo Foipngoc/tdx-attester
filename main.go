@@ -13,7 +13,7 @@ import (
 func main() {
 
 	http.HandleFunc("/attest", attest)
-	log.Println("server监听于端口:4439")
+	log.Println("server监听于端口:9091")
 	h1 := http.FileServer(http.Dir("files"))
 	http.Handle("/", h1)
 	err := http.ListenAndServe(":9091", nil)
@@ -49,7 +49,7 @@ func attest(w http.ResponseWriter, r *http.Request) {
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		fmt.Printf("错误:\n%s\n", string(out))
-		log.Fatalf("认证失败：%s\n", err)
+		fmt.Printf("认证失败：%s\n", err)
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(out)
 		return
