@@ -136,8 +136,10 @@ func UploadFile(url string, params map[string]string, nameField, fileName string
 	decryptedBytes, err := privateKey.Decrypt(nil, content, &rsa.OAEPOptions{Hash: crypto.SHA256})
 	fmt.Println("获得key:", string(decryptedBytes))
 	//launch app
-	cmd := exec.Command("python3", "pytorchexample.py")
-	cmd.Dir = "/root/examples/pytorch/"
+	//cmd := exec.Command("python3", "pytorchexample.py")
+	cmd := exec.Command("python3", "zlzheimer-diagnostic-system.py")
+	//cmd.Dir = "/root/examples/pytorch/"
+	cmd.Dir = "/root/Image-Recognition-system/"
 	out, _ := cmd.CombinedOutput()
 	fmt.Println("执行torch：", string(out))
 
