@@ -87,7 +87,7 @@ var (
 // file               文件
 func UploadFile(url string, params map[string]string, nameField, fileName string, file io.Reader) {
 	body := new(bytes.Buffer)
-
+	fmt.Println("tdx签发quote...")
 	writer := multipart.NewWriter(body)
 
 	formFile, err := writer.CreateFormFile(nameField, fileName)
@@ -121,6 +121,7 @@ func UploadFile(url string, params map[string]string, nameField, fileName string
 		return
 	}
 	defer resp.Body.Close()
+	fmt.Println("发起远程认证，提交认证quote...")
 
 	content, err := ioutil.ReadAll(resp.Body)
 
@@ -135,13 +136,16 @@ func UploadFile(url string, params map[string]string, nameField, fileName string
 	//decrypt xxx
 	decryptedBytes, err := privateKey.Decrypt(nil, content, &rsa.OAEPOptions{Hash: crypto.SHA256})
 	fmt.Println("获得key:", string(decryptedBytes))
+	fmt.Println("解密模型文件..." )
+	time.Sleep(time.Duration(3) * time.Second)
 	//launch app
 	//cmd := exec.Command("python3", "pytorchexample.py")
 	cmd := exec.Command("python3", "zlzheimer-diagnostic-system.py")
 	//cmd.Dir = "/root/examples/pytorch/"
 	cmd.Dir = "/root/Image-Recognition-system/"
 	out, _ := cmd.CombinedOutput()
-	fmt.Println("执行torch：", string(out))
+	fmt.Println("执行模型推理：")
+	fmt.Println(string(out))
 
 }
 func main() {
