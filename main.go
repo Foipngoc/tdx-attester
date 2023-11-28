@@ -19,7 +19,7 @@ import (
 func main() {
 
 	http.HandleFunc("/attest", attest)
-	log.Println("server监听于端口:9091")
+	log.Println("attestation server started, listen on 9091")
 	h1 := http.FileServer(http.Dir("files"))
 	http.Handle("/", h1)
 	err := http.ListenAndServe(":9091", nil)
@@ -70,7 +70,7 @@ func attest(w http.ResponseWriter, r *http.Request) {
 		w.Write(out)
 
 	} else {
-		fmt.Printf("认证成功:\n%s\n", string(out))
+		fmt.Printf("verification succeed:\n%s\n", string(out))
 
 		publicKeyBlock, _ := pem.Decode([]byte(pubk))
 		if publicKeyBlock == nil || publicKeyBlock.Type != "RSA PUBLIC KEY" {
@@ -86,7 +86,7 @@ func attest(w http.ResponseWriter, r *http.Request) {
 		}*/
 
 		encryptedBytes, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, publicKey, []byte("5ac3b50421eeb26f55141a537cb322ff"), nil)
-		fmt.Printf("配置key.\n")
+		fmt.Printf("sent key.\n")
 
 		w.WriteHeader(http.StatusOK)
 
